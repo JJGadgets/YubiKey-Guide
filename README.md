@@ -609,10 +609,11 @@ Use a 1 year expiration for sub-keys - they can be renewed using the offline mas
 Create a [signing key](https://stackoverflow.com/questions/5421107/can-rsa-be-both-used-as-encryption-and-signature/5432623#5432623) by selecting `addkey` then `(4) RSA (sign only)`:
 
 <table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output:</b></sub>
-	1. Choose (4) RSA (sign only)
-	2. Use keysize 4096
-	3. Use validity 1 year, then type "y" on the confirmation prompts
-	</summary><hr>
+1. Choose (4) RSA (sign only)
+2. Use keysize 4096
+3. Use validity 1 year, then type "y" on the confirmation prompts
+</summary><hr>
+
 ```console
 gpg> addkey
 Key is protected.
@@ -654,6 +655,7 @@ ssb  rsa4096/0xBECFA3C1AE191D15
     created: 2017-10-09  expires: 2018-10-09       usage: S
 [ultimate] (1). Dr Duh <doc@duh.to>
 ```
+
 </details></td></tr></tbody>
 </table>
 	      
