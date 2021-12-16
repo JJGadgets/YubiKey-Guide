@@ -547,7 +547,7 @@ Is this correct? (y/N) y
 </details></td></tr></tbody>
 </table>
 
-<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub>
+<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub><br>
 4. Input any name and email address, leave an optional comment, then type 'O' on the prompt once details are confirmed
 </summary><hr>
 
@@ -568,7 +568,7 @@ Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
 
 5. Enter a passphrase to secure the master key and thus chain of subkeys, on the pinentry prompt.
 
-<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub>
+<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub><br>
 This should be the final output of the addkey command.
 </summary><hr>
 
