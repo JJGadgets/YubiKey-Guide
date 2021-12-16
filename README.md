@@ -1,3 +1,5 @@
+# YubiKey + OpenPGP Guide
+
 This is a guide to using [YubiKey](https://www.yubico.com/products/yubikey-hardware/) as a [SmartCard](https://security.stackexchange.com/questions/38924/how-does-storing-gpg-ssh-private-keys-on-smart-cards-compare-to-plain-usb-drives) for storing GPG encryption, signing and authentication keys, which can also be used for SSH. Many of the principles in this document are applicable to other smart card devices.
 
 Keys stored on YubiKey are [non-exportable](https://support.yubico.com/support/solutions/articles/15000010242-can-i-duplicate-or-back-up-a-yubikey-) (as opposed to file-based keys that are stored on disk) and are convenient for everyday use. Instead of having to remember and enter passphrases to unlock SSH/GPG keys, YubiKey needs only a physical touch after being unlocked with a PIN. All signing and encryption operations happen on the card, rather than in OS memory.
@@ -475,6 +477,14 @@ Generate a new key with GPG, selecting `(8) RSA (set your own capabilities)`, `C
 
 Do not set the master key to expire - see [Note #3](#notes).
 
+<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub><br>
+<h6>Summarized steps:</h6>
+1. Choose (8) RSA (set your own capabilities)<br>
+2. Deselect Encryption and Signing by typing E, then enter key, and then S, then enter key. Authentication should already be disabled. Certify should be the only capability selected.<br>
+3. Use keysize 4096<br>
+4. Use validity 0, for no expiry, then type "y" on the confirmation prompts
+</summary><hr>
+
 ```console
 $ gpg --expert --full-generate-key
 
@@ -534,7 +544,12 @@ Key does not expire at all
 Is this correct? (y/N) y
 ```
 
-Input any name and email address:
+</details></td></tr></tbody>
+</table>
+
+<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub>
+4. Input any name and email address, leave an optional comment, then type 'O' on the prompt once details are confirmed
+</summary><hr>
 
 ```console
 GnuPG needs to construct a user ID to identify your key.
@@ -546,7 +561,18 @@ You selected this USER-ID:
     "Dr Duh <doc@duh.to>"
 
 Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
+```
 
+</details></td></tr></tbody>
+</table>
+
+5. Enter a passphrase to secure the master key and thus chain of subkeys, on the pinentry prompt.
+
+<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub>
+This should be the final output of the addkey command.
+</summary><hr>
+
+```console
 We need to generate a lot of random bytes. It is a good idea to perform
 some other action (type on the keyboard, move the mouse, utilize the
 disks) during the prime generation; this gives the random number
@@ -562,6 +588,9 @@ pub   rsa4096/0xFF3E7D88647EBCDB 2017-10-09 [C]
       Key fingerprint = 011C E16B D45B 27A5 5BA8  776D FF3E 7D88 647E BCDB
 uid                              Dr Duh <doc@duh.to>
 ```
+
+</details></td></tr></tbody>
+</table>
 
 Export the key ID as a [variable](https://stackoverflow.com/questions/1158091/defining-a-variable-with-or-without-export/1158231#1158231) (`KEYID`) for use later:
 
@@ -587,7 +616,7 @@ $ gpg  --default-key $OLDKEY --sign-key $KEYID
 
 # Sub-keys
 
-Edit the master key to add sub-keys:
+Enter the GPG Edit prompt to add sub-keys to the master key:
 
 ```console
 $ gpg --expert --edit-key $KEYID
@@ -598,6 +627,8 @@ sec  rsa4096/0xEA5DE91459B80592
     created: 2017-10-09  expires: never       usage: C
     trust: ultimate      validity: ultimate
 [ultimate] (1). Dr Duh <doc@duh.to>
+
+gpg> 
 ```
 
 Use 4096-bit RSA keys.
@@ -608,9 +639,10 @@ Use a 1 year expiration for sub-keys - they can be renewed using the offline mas
 
 Create a [signing key](https://stackoverflow.com/questions/5421107/can-rsa-be-both-used-as-encryption-and-signature/5432623#5432623) by selecting `addkey` then `(4) RSA (sign only)`:
 
-<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output:</b></sub>
-1. Choose (4) RSA (sign only)
-2. Use keysize 4096
+<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub><br>
+<h6>Summarized steps:</h6>
+1. Choose (4) RSA (sign only)<br>
+2. Use keysize 4096<br>
 3. Use validity 1 year, then type "y" on the confirmation prompts
 </summary><hr>
 
@@ -663,6 +695,13 @@ ssb  rsa4096/0xBECFA3C1AE191D15
 
 Next, create an [encryption key](https://www.cs.cornell.edu/courses/cs5430/2015sp/notes/rsa_sign_vs_dec.php) by selecting `(6) RSA (encrypt only)`:
 
+<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub><br>
+<h6>Summarized steps:</h6>
+1. Choose (6) RSA (encrypt only)<br>
+2. Use keysize 4096<br>
+3. Use validity 1 year, then type "y" on the confirmation prompts
+</summary><hr>
+	
 ```console
 gpg> addkey
 Please select what kind of key you want:
@@ -705,11 +744,22 @@ ssb  rsa4096/0x5912A795E90DD2CF
 [ultimate] (1). Dr Duh <doc@duh.to>
 ```
 
+</details></td></tr></tbody>
+</table>
+
 ## Authentication
 
 Finally, create an [authentication key](https://superuser.com/questions/390265/what-is-a-gpg-with-authenticate-capability-used-for).
 
 GPG doesn't provide an authenticate-only key type, so select `(8) RSA (set your own capabilities)` and toggle the required capabilities until the only allowed action is `Authenticate`:
+
+<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub><br>
+<h6>Summarized steps:</h6>
+1. Choose (8) RSA (set your own capabilities)<br>
+2. Deselect everything, and enable Authentication by selecting A. Authentication should be the only capability selected.<br>
+3. Use keysize 4096<br>
+4. Use validity 1 year, then type "y" on the confirmation prompts
+</summary><hr>
 
 ```console
 gpg> addkey
@@ -795,6 +845,9 @@ ssb  rsa4096/0x3F29127E79649A3D
 [ultimate] (1). Dr Duh <doc@duh.to>
 ```
 
+</details></td></tr></tbody>
+</table>
+
 Finish by saving the keys.
 
 ```console
@@ -804,6 +857,16 @@ gpg> save
 ## Add extra identities
 
 (Optional) To add additional email addresses or identities, use `adduid`:
+
+<table><tbody><tr><td><details><summary><sub><b>Expand to view full terminal output</b></sub><br>
+<h6>Summarized steps:</h6>
+1. Use `adduid` on the `gpg> ` prompt<br>
+2. Trust the new identity by typing `trust` on the `gpg> ` prompt<br>
+3. Choose ultimate trust by selecting 5<br>
+4. Switch to the first identity using `uid 1` on the `gpg> ` prompt, then once the first identity shows a `*`, type `primary` on the `gpg> ` prompt<br>
+5. `gpg> save` to save changes
+</summary><hr>
+
 
 ```console
 gpg> adduid
@@ -893,6 +956,9 @@ ssb  rsa4096/0x3F29127E79649A3D
 
 gpg> save
 ```
+
+</details></td></tr></tbody>
+</table>
 
 By default, the last identity added will be the primary user ID - use `primary` to change that.
 
